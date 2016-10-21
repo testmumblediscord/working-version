@@ -135,26 +135,47 @@ var m_currentChannel = null;
 ///////////////////////////////////////////////////
 bot.on('message', function(user, userID, channelID, message, event) {
 
+  //is the command using our prefix?
   if(message.charAt(message.length-1) != ";")
   {
     return;
   }
   else
   {
-
+    //take out the prefix so we can match it with a server command
     message = message.replace(m_prefix, "");
-    // console.log(message.charAt(message.length-1));
-    //go through all the commands and see what the user typed
-    for (i = 0; i < ServerCommands.length; i++)
+
+    //only allow the user to type commands in the specific setChannel that is saved to m_currentChannel
+    if(channelID != m_currentChannel)
     {
-        if(message == ServerCommands[i].getCommandName())
-        {
-          ServerCommands[i].setUser(user);
-          ServerCommands[i].setUserID(userID);
-          ServerCommands[i].setChannelID(channelID);
-          ServerCommands[i].setMessage(message);
-          eventEmitter.emit(ServerCommands[i].getCommandName(), ServerCommands[i]);
-        }
+      //have basic commands here
+      if(message == "help")
+      {
+        SendBotMessage(user, userID, channelID, "call setchannel; In the channel you wish Emerald Bot to listen for commands.");
+      }
+      else if(message == "setchannel")
+      {
+        m_currentChannel = channelID;
+        SendBotMessage(user, userID, channelID, "channel is set to channelID: " + channelID);
+      }
+    }
+    else
+    {
+      // console.log(message);
+      //go through all the commands and see what the user typed
+      for (i = 0; i < ServerCommands.length; i++)
+      {
+          if(message == ServerCommands[i].getCommandName())
+          {
+            ServerCommands[i].setUser(user);
+            ServerCommands[i].setUserID(userID);
+            ServerCommands[i].setChannelID(channelID);
+            ServerCommands[i].setMessage(message);
+            //call the the method we need and pass the server command object
+            eventEmitter.emit(ServerCommands[i].getCommandName(), ServerCommands[i]);
+          }
+      }
+
     }
 
   }
