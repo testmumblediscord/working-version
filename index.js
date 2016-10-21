@@ -38,6 +38,9 @@ bot.on('ready', function() {
     console.log(bot.username + " - (" + bot.id + ")");
 });
 
+///////////////////////////////////////////////////////////////
+////Player
+
 //a list of the current players
 var PlayerList = [];
 
@@ -56,6 +59,9 @@ Player.prototype.getName = function() {
 Player.prototype.getID = function() {
   return this.userID;
 };
+
+///////////////////////////////////////////////
+//// commands
 
 //a list of commands
 var ServerCommands = [];
@@ -114,16 +120,9 @@ ServerCommands.push(c_setchannel);
 var c_getchannel = new Command("getchannel", "tells you which channel ID the bot is subscribed to");
 ServerCommands.push(c_getchannel);
 
-
-
-// var person1 = new Person("Alice");
-// var person2 = new Person("Bob");
-//
-// // call the Person sayHello method.
-// person1.sayHello(); // logs "Hello, I'm Alice"
-// person2.sayHello(); // logs "Hello, I'm Bob"
-
 ////////////////////////////////////////////////
+/// class level variables
+
 
 var m_commandList = "General: \n help, ping, setchannel, getchannel \n Gameplay: \n ";
 //the letter or symbol for the bot to look for after a command.
@@ -162,6 +161,8 @@ bot.on('message', function(user, userID, channelID, message, event) {
 
 });
 
+///////////////// command methods
+
 eventEmitter.on('help', function(command) {
     SendBotMessage(command.user, command.userID, command.channelID, "Commands: " + m_commandList);
 });
@@ -184,6 +185,10 @@ eventEmitter.on('setchannel', function(command) {
 eventEmitter.on('getchannel', function(command) {
   SendBotMessage(command.user, command.userID, command.channelID, m_currentChannel);
 });
+
+
+//////////////////////////////
+/// the bot messaging util
 
 ///sends a message to the given channel
 function SendBotMessage(user, userID, channelID, newMessage)
