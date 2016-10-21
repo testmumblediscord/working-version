@@ -68,7 +68,13 @@ var Command = function(name, description, method){
   this.Description = description;
   this.userID = null;
   this.user = null;
+  this.channelID = null;
+  this.message = null;
 };
+
+Command.prototype.setMessage = function(message){
+  this.message = message;
+}
 
 Command.prototype.setUser = function(user){
   this.user = user;
@@ -76,6 +82,10 @@ Command.prototype.setUser = function(user){
 
 Command.prototype.setUserID = function(userID){
   this.userID = userID;
+}
+
+Command.prototype.setChannelID = function(channelID){
+  this.channelID = channelID;
 }
 
 Command.prototype.getCommandName = function(){
@@ -116,7 +126,8 @@ ServerCommands.push(c_getchannel);
 ////////////////////////////////////////////////
 
 var m_commandList = "General: \n help, ping, setchannel, getchannel \n Gameplay: \n ";
-var m_prefix = "";
+//the letter or symbol for the bot to look for after a command.
+var m_prefix = ";";
 var m_currentChannel = null;
 
 
@@ -125,90 +136,53 @@ var m_currentChannel = null;
 ///////////////////////////////////////////////////
 bot.on('message', function(user, userID, channelID, message, event) {
 
-  // console.log("#commands: " + ServerCommands.length);
-
-  for (i = 0; i < ServerCommands.length; i++)
+  if(message.charAt(message.length-1) != ";")
   {
-      if(message == ServerCommands[i].getCommandName())
-      {
-        ServerCommands[i].setUser(user);
-        ServerCommands[i].setUserID(userID);
-        eventEmitter.emit(ServerCommands[i].getCommandName());
-      }
-      else
-      {
-          // console.log(i + "." + message + " | " + ServerCommands[i].getCommandName());
-      }
+    return;
   }
-    //
-    // if(channelID == m_currentChannel)
-    // {
-    //   //start the giant if statement of messages
-    //   if (message === "ping")
-    //   {
-    //     SendBotMessage(user, userID, channelID, "pong");
-    //   }
-    //   else if(message == "setchannel")
-    //   {
-    //     var newMessage = message;
-    //     if(newMessage != "" || newMessage != " ")
-    //     {
-    //       m_currentChannel = channelID;
-    //       SendBotMessage(user, userID, channelID, "New Channel is set");
-    //     }
-    //     else
-    //     {
-    //       SendBotMessage(user, userID, channelID, "Error is not correct.");
-    //     }
-    //   }
-    //   else if(message == "getchannel")
-    //   {
-    //     SendBotMessage(user, userID, channelID, "Current channel: " + m_currentChannel);
-    //   }
-    //   else if(message == "help")
-    //   {
-    //     SendBotMessage(user, userID, channelID, "Commands: " + m_commandList);
-    //   }
-    // }
-    // else
-    // {
-    //   //there is no channel set. So give users a couple of commands
-    //   if(message == "setchannel")
-    //   {
+  else
+  {
 
-    //   }
-    //   else if(message == "help")
-    //   {
-    //
-    //   }
-    // }
-});
+    message = message.replace(m_prefix, "");
+    // console.log(message.charAt(message.length-1));
+    //go through all the commands and see what the user typed
+    for (i = 0; i < ServerCommands.length; i++)
+    {
+        if(message == ServerCommands[i].getCommandName())
+        {
+          ServerCommands[i].setUser(user);
+          ServerCommands[i].setUserID(userID);
+          ServerCommands[i].setChannelID(channelID);
+          ServerCommands[i].setMessage(message);
+          eventEmitter.emit(ServerCommands[i].getCommandName(), ServerCommands[i]);
+        }
+    }
 
-eventEmitter.on('help', function() {
-    SendBotMessage(user, userID, channelID, "Commands: " + m_commandList);
-});
-
-eventEmitter.on('ping', function() {
-  SendBotMessage(user, userID, channelID, "Pong");
-});
-
-eventEmitter.on('setchannel', function() {
-
-  // var newMessage = message;
-  // if(newMessage != "" || newMessage != " ")
-  // {
-  //   m_currentChannel = channelID;
-  //   SendBotMessage(user, userID, channelID, "New Channel is set");
-  // }
-  // else
-  // {
-  //   SendBotMessage(user, userID, channelID, "Error is not correct.");
-  // }
+  }
 
 });
 
-eventEmitter.on('getchannel', function() {
-  console.log('getchannel');
+eventEmitter.on('help', function(command) {
+    SendBotMessage(command.user, command.userID, command.channelID, "Commands: " + m_commandList);
+});
+
+eventEmitter.on('ping', function(command) {
+  SendBotMessage(command.user, command.userID, command.channelID, "Pong");
+});
+
+eventEmitter.on('setchannel', function(command) {
+
+  var newMessage = command.message;
+  if(newMessage != "" || newMessage != " ")
+  {
+    m_currentChannel = command.channelID;
+    SendBotMessage(command.user, command.userID, command.channelID, "New Channel is set");
+  }
+
+});
+
+eventEmitter.on('getchannel', function(command) {
+  SendBotMessage(command.user, command.userID, command.channelID, m_currentChannel);
 });
 
 ///sends a message to the given channel
