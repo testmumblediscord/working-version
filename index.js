@@ -108,93 +108,64 @@ var m_currentChannel = null;
 ///////////////////////////////////////////////////
 bot.on('message', function(user, userID, channelID, message, event) {
 
-  //iterate through the command list and see if a user typed a command
-  for (i = 0; i < ServerCommands.length; i++)
-  {
-    if(message == ServerCommands[i].getCommandName())
+
+    if(channelID == m_currentChannel)
     {
-      bot.sendMessage({
-        to: channelID,
-        message: ServerCommands[i].getCommandName()
-      });
+      //start the giant if statement of messages
+      if (message === "ping")
+      {
+        SendBotMessage(user, userID, channelID, "pong");
+      }
+      else if(message == "setchannel")
+      {
+        var newMessage = message;
+        if(newMessage != "" || newMessage != " ")
+        {
+          m_currentChannel = channelID;
+          SendBotMessage(user, userID, channelID, "New Channel is set");
+        }
+        else
+        {
+          SendBotMessage(user, userID, channelID, "Error is not correct.");
+        }
+      }
+      else if(message == "getchannel")
+      {
+        SendBotMessage(user, userID, channelID, "Current channel: " + m_currentChannel);
+      }
+      else if(message == "help")
+      {
+        SendBotMessage(user, userID, channelID, "Commands: " + m_commandList);
+      }
     }
-  }
-    //
-    // if(channelID == m_currentChannel)
-    // {
-    //   //start the giant if statement of messages
-    //   if (message === "ping")
-    //   {
-    //     bot.sendMessage({
-    //         to: channelID,
-    //         message: "pong " + user
-    //     });
-    //   }
-    //   else if(message == "setchannel")
-    //   {
-    //     var newMessage = message;
-    //     if(newMessage != "" || newMessage != " ")
-    //     {
-    //       m_currentChannel = channelID;
-    //       console.log(m_currentChannel);
-    //       bot.sendMessage({
-    //           to: channelID,
-    //           message: "New Channel is set"
-    //       });
-    //     }
-    //     else
-    //     {
-    //       bot.sendMessage({
-    //           to: channelID,
-    //           message: "Error is not correct."
-    //       });
-    //     }
-    //   }
-    //   else if(message == "getchannel")
-    //   {
-    //     bot.sendMessage({
-    //         to: channelID,
-    //         message: "Current channel: " + m_currentChannel
-    //     });
-    //   }
-    //   else if(message == "help")
-    //   {
-    //     bot.sendMessage({
-    //         to: channelID,
-    //         message: "Commands: " + m_commandList
-    //     });
-    //   }
-    // }
-    // else
-    // {
-    //
-    //   //there is no channel set. So give users a couple of commands
-    //   if(message == "setchannel")
-    //   {
-    //     var newMessage = message;
-    //     if(newMessage != "" || newMessage != " ")
-    //     {
-    //       m_currentChannel = channelID;
-    //       console.log(m_currentChannel);
-    //       bot.sendMessage({
-    //           to: channelID,
-    //           message: "New Channel is set"
-    //       });
-    //     }
-    //     else
-    //     {
-    //       bot.sendMessage({
-    //           to: channelID,
-    //           message: "Error is not correct."
-    //       });
-    //     }
-    //   }
-    //   else if(message == "help")
-    //   {
-    //     bot.sendMessage({
-    //         to: channelID,
-    //         message: "Channel Not Set. Call setchannel in the channel you want me to listen to."
-    //     });
-    //   }
-    // }
+    else
+    {
+      //there is no channel set. So give users a couple of commands
+      if(message == "setchannel")
+      {
+        var newMessage = message;
+        if(newMessage != "" || newMessage != " ")
+        {
+          m_currentChannel = channelID;
+          SendBotMessage(user, userID, channelID, "New Channel is set");
+        }
+        else
+        {
+          SendBotMessage(user, userID, channelID, "Error is not correct.");
+        }
+      }
+      else if(message == "help")
+      {
+        SendBotMessage(user, userID, channelID, "Channel Not Set. Call setchannel in the channel you want me to listen to.");
+      }
+    }
 });
+
+///sends a message to the given channel
+function SendBotMessage(user, userID, channelID, newMessage)
+{
+    bot.sendMessage({
+        to: channelID,
+        message: newMessage
+    });
+}
