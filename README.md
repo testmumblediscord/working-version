@@ -28,5 +28,5 @@ $ heroku open
 ```
 or
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/kinifi/discord-adventure-bot)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/kinifi/discord-bot)
 
