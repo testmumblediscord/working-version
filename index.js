@@ -50,6 +50,21 @@ var PlayerList = [];
 var Player = function(firstName, id) {
   this.firstName = firstName;
   this.userID = id;
+  this.Level = 1;
+  this.hp = 10;
+  this.maxhp = this.Level * 10;
+  this.Inventory = [];
+  this.Weapon = null;
+  this.Gold = 2;
+  this.Slain = 0;
+  this.Killed = 0;
+  // stats
+  this.Points = 5;
+  this.Strength = 1;
+  this.Intelligence = 1;
+  this.ArmorClass = 1;
+  this.Charisma = 1;
+
 };
 
 Player.prototype.getName = function() {
@@ -59,6 +74,26 @@ Player.prototype.getName = function() {
 Player.prototype.getID = function() {
   return this.userID;
 };
+
+Player.prototype.getStats = function(player)
+{
+  var playerString = "```" +
+  "!======== [" + player.getName + " Stats] ========! \n" +
+  "+ Health: " + player.hp + "|" + player.maxhp + "\n" +
+  "+ for Inventory type inv; \n" +
+  "+ Weapon: " + player.Weapon + " + \n" +
+  "+ Level: " + player.Level + " + \n" +
+  "+ Gold: " + player.Gold + " + \n" +
+  "+ Slain: " + player.Slain + " + \n" +
+  "+ Killed: " + player.Killed + " + \n" +
+  "+ Strength: " + player.Strength + " + \n" +
+  "+ Intelligence: " + player.Intelligence + " + \n" +
+  "+ ArmorClass: " + player.ArmorClass + " + \n" +
+  "+ Charisma: " + player.Charisma + " + \n" +
+  "+ Points: " + player.Points + " + \n" +
+  "!==================================! \n" + "```";
+  return playerString;
+}
 
 ///////////////////////////////////////////////
 //// commands
@@ -119,6 +154,13 @@ ServerCommands.push(c_setchannel);
 //getchannel command
 var c_getchannel = new Command("getchannel", "tells you which channel ID the bot is subscribed to");
 ServerCommands.push(c_getchannel);
+
+///Player commands
+var c_createplayer = new Command("createplayer", "Creates a player for the typed userID");
+ServerCommands.push(c_createplayer);
+
+var c_getplayerstats = new Command("getstats", "Gets the current stats of the typed userID");
+ServerCommands.push(c_getplayerstats);
 
 ////////////////////////////////////////////////
 /// class level variables
@@ -184,6 +226,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
 
 ///////////////// command methods
 
+//help and server commands
 eventEmitter.on('help', function(command) {
     SendBotMessage(command.user, command.userID, command.channelID, "Commands: " + m_commandList);
 });
@@ -205,6 +248,42 @@ eventEmitter.on('setchannel', function(command) {
 
 eventEmitter.on('getchannel', function(command) {
   SendBotMessage(command.user, command.userID, command.channelID, m_currentChannel);
+});
+
+eventEmitter.on('getstats', function(command) {
+
+  for (i = 0; i < PlayerList.length; i++)
+  {
+    //we found a match so do not create a new player
+    if(PlayerList[i].userID == command.userID)
+    {
+      var stats = PlayerList[i].getStats();
+      SendBotMessage(command.user, command.userID, command.channelID, stats);
+    }
+
+  }
+
+});
+
+///player commands
+eventEmitter.on('createplayer', function(command) {
+  //make sure there isn't a player already for the given user id
+  for (i = 0; i < PlayerList.length; i++)
+  {
+    //we found a match so do not create a new player
+    if(PlayerList[i].userID == command.userID)
+    {
+        SendBotMessage(command.user, command.userID, command.channelID, "Already Have a Player. type getstats;");
+    }
+    else if(PlayerList.length == i && PlayerList[i].userID != command.userID)
+    {
+      //create a new player
+      var newPlayer = new Player(command.user, command.userID);
+      PlayerList.push(newPlayer);
+      SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
+    }
+  }
+
 });
 
 
