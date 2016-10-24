@@ -54,7 +54,7 @@ var Player = function(firstName, id) {
   this.hp = 10;
   this.maxhp = this.Level * 10;
   this.Inventory = [];
-  this.Weapon = null;
+  this.Weapon = "Fist";
   this.Gold = 2;
   this.Slain = 0;
   this.Killed = 0;
@@ -78,7 +78,7 @@ Player.prototype.getID = function() {
 Player.prototype.getStats = function(player)
 {
   var playerString = "```" +
-  "!======== [" + player.getName + " Stats] ========! \n" +
+  "!======== [" + player.getName() + " Stats] ========! \n" +
   "+ Health: " + player.hp + "|" + player.maxhp + "\n" +
   "+ for Inventory type inv; \n" +
   "+ Weapon: " + player.Weapon + " + \n" +
@@ -166,7 +166,7 @@ ServerCommands.push(c_getplayerstats);
 /// class level variables
 
 
-var m_commandList = "General: \n help, ping, setchannel, getchannel \n Gameplay: \n ";
+var m_commandList = "General: \n help, ping, setchannel, getchannel \n Gameplay: \n createplayer, getstats";
 //the letter or symbol for the bot to look for after a command.
 var m_prefix = ";";
 var m_currentChannel = null;
@@ -215,6 +215,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
             ServerCommands[i].setMessage(message);
             //call the the method we need and pass the server command object
             eventEmitter.emit(ServerCommands[i].getCommandName(), ServerCommands[i]);
+            break;
           }
       }
 
@@ -257,7 +258,7 @@ eventEmitter.on('getstats', function(command) {
     //we found a match so do not create a new player
     if(PlayerList[i].userID == command.userID)
     {
-      var stats = PlayerList[i].getStats();
+      var stats = PlayerList[i].getStats(PlayerList[i]);
       SendBotMessage(command.user, command.userID, command.channelID, stats);
     }
 
@@ -267,22 +268,38 @@ eventEmitter.on('getstats', function(command) {
 
 ///player commands
 eventEmitter.on('createplayer', function(command) {
-  //make sure there isn't a player already for the given user id
-  for (i = 0; i < PlayerList.length; i++)
-  {
-    //we found a match so do not create a new player
-    if(PlayerList[i].userID == command.userID)
-    {
-        SendBotMessage(command.user, command.userID, command.channelID, "Already Have a Player. type getstats;");
-    }
-    else if(PlayerList.length == i && PlayerList[i].userID != command.userID)
-    {
-      //create a new player
-      var newPlayer = new Player(command.user, command.userID);
-      PlayerList.push(newPlayer);
-      SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
-    }
-  }
+
+  console.log("creating a new player:" + PlayerList.length);
+
+  //create a new player
+  var newPlayer = new Player(command.user, command.userID);
+  PlayerList.push(newPlayer);
+  SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
+
+  SendBotMessage(command.user, command.userID, command.channelID, "Created A New Player: " + newPlayer.getStats(newPlayer));
+
+  console.log("creating a new player:" + PlayerList.length);
+
+  // //make sure there isn't a player already for the given user id
+  // for (i = 0; i < PlayerList.length; i++)
+  // {
+  //   console.log("checking if player exists");
+  //   //we found a match so do not create a new player
+  //   if(PlayerList[i].userID == command.userID)
+  //   {
+  //       SendBotMessage(command.user, command.userID, command.channelID, "Already Have a Player. type getstats;");
+  //   }
+  //   else if(PlayerList.length == i && PlayerList[i].userID != command.userID)
+  //   {
+  //     //create a new player
+  //     var newPlayer = new Player(command.user, command.userID);
+  //     PlayerList.push(newPlayer);
+  //     SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
+  //   }
+  //   else {
+  //     console.log("nothing matched: " + i + "| " + PlayerList.length);
+  //   }
+  // }
 
 });
 
