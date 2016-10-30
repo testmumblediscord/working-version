@@ -1,0 +1,8 @@
+
+```
+This world is new. Long sandy beaches, thick forests and breathable air. Its the best planet you could of asked to be stuck on.Civilization must advance again. Starting over isn't easy.
+1. Make a rocket and get the space program start.
+2. Type plans; to see what needs to be done.
+4. Type mission; to see a percentage and image of the rocket
+
+```

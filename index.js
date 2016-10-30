@@ -3,6 +3,7 @@ var app = express();
 var Discord = require('discord.io');
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
+var fs = require('fs');
 
 
 ////////////////////////////////////////////////////////////////
@@ -271,41 +272,64 @@ eventEmitter.on('createplayer', function(command) {
 
   console.log("creating a new player:" + PlayerList.length);
 
-  //create a new player
-  var newPlayer = new Player(command.user, command.userID);
-  PlayerList.push(newPlayer);
-  SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
-
-  SendBotMessage(command.user, command.userID, command.channelID, "Created A New Player: " + newPlayer.getStats(newPlayer));
+  if(PlayerList.length == 0)
+  {
+    //create a new player
+    var newPlayer = new Player(command.user, command.userID);
+    PlayerList.push(newPlayer);
+    SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
+    SendBotMessage(command.user, command.userID, command.channelID, "Created A New Player: " + newPlayer.getStats(newPlayer));
+  }
+  else
+  {
+    //make sure there isn't a player already for the given user id
+    for (i = 0; i < PlayerList.length; i++)
+    {
+      console.log("checking if player exists");
+      //we found a match so do not create a new player
+      if(PlayerList[i].userID == command.userID)
+      {
+          SendBotMessage(command.user, command.userID, command.channelID, "Already Have a Player. type getstats;");
+      }
+      else if(PlayerList.length == i && PlayerList[i].userID != command.userID)
+      {
+        //create a new player
+        var newPlayer = new Player(command.user, command.userID);
+        PlayerList.push(newPlayer);
+        SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
+      }
+      else {
+        console.log("nothing matched: " + i + "| " + PlayerList.length);
+      }
+    }
+  }
 
   console.log("creating a new player:" + PlayerList.length);
 
-  // //make sure there isn't a player already for the given user id
-  // for (i = 0; i < PlayerList.length; i++)
-  // {
-  //   console.log("checking if player exists");
-  //   //we found a match so do not create a new player
-  //   if(PlayerList[i].userID == command.userID)
-  //   {
-  //       SendBotMessage(command.user, command.userID, command.channelID, "Already Have a Player. type getstats;");
-  //   }
-  //   else if(PlayerList.length == i && PlayerList[i].userID != command.userID)
-  //   {
-  //     //create a new player
-  //     var newPlayer = new Player(command.user, command.userID);
-  //     PlayerList.push(newPlayer);
-  //     SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
-  //   }
-  //   else {
-  //     console.log("nothing matched: " + i + "| " + PlayerList.length);
-  //   }
-  // }
 
 });
 
 
 //////////////////////////////
 /// the bot messaging util
+
+///reads a given txt/json file and sends it to the channelID
+///json reading tutorial https://www.codementor.io/nodejs/tutorial/how-to-use-json-files-in-node-js
+function ReadFile(path)
+{
+  fs.readFile(path, 'utf8', function (err,data)
+  {
+    if (err)
+    {
+      return console.log(err);
+    }
+    else
+    {
+      return data;
+      // SendBotMessage(user, userID, channelID, data);
+    }
+  });
+}
 
 ///sends a message to the given channel
 function SendBotMessage(user, userID, channelID, newMessage)
