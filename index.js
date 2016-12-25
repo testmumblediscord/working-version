@@ -30,6 +30,7 @@ app.listen(app.get('port'), function() {
 //// Discord
 ////////////////////////////////////////////////////////////////
 
+//replace the key with your key below
 var bot = new Discord.Client({
     token: "MjM4Nzg1ODAwNzY0OTE1NzEy.CurVwQ.3035GY3YxLw3VBKaDcpugL2V7v0",
     autorun: true
@@ -40,61 +41,60 @@ bot.on('ready', function() {
 });
 
 ///////////////////////////////////////////////////////////////
-////Player
-
-//a list of the current players
-var PlayerList = [];
-
-//// Player Class
-// firstName: user name on the discord channel
-// id: the userID on the channel
-var Player = function(firstName, id) {
-  this.firstName = firstName;
-  this.userID = id;
-  this.Level = 1;
-  this.hp = 10;
-  this.maxhp = this.Level * 10;
-  this.Inventory = [];
-  this.Weapon = "Fist";
-  this.Gold = 2;
-  this.Slain = 0;
-  this.Killed = 0;
-  // stats
-  this.Points = 5;
-  this.Strength = 1;
-  this.Intelligence = 1;
-  this.ArmorClass = 1;
-  this.Charisma = 1;
-
-};
-
-Player.prototype.getName = function() {
-  return this.firstName;
-};
-
-Player.prototype.getID = function() {
-  return this.userID;
-};
-
-Player.prototype.getStats = function(player)
-{
-  var playerString = "```" +
-  "!======== [" + player.getName() + " Stats] ========! \n" +
-  "+ Health: " + player.hp + "|" + player.maxhp + "\n" +
-  "+ for Inventory type inv; \n" +
-  "+ Weapon: " + player.Weapon + " + \n" +
-  "+ Level: " + player.Level + " + \n" +
-  "+ Gold: " + player.Gold + " + \n" +
-  "+ Slain: " + player.Slain + " + \n" +
-  "+ Killed: " + player.Killed + " + \n" +
-  "+ Strength: " + player.Strength + " + \n" +
-  "+ Intelligence: " + player.Intelligence + " + \n" +
-  "+ ArmorClass: " + player.ArmorClass + " + \n" +
-  "+ Charisma: " + player.Charisma + " + \n" +
-  "+ Points: " + player.Points + " + \n" +
-  "!==================================! \n" + "```";
-  return playerString;
-}
+// ////Player example. 
+//
+// //a list of the current players
+// var PlayerList = [];
+//
+// //// Player Class
+// // firstName: user name on the discord channel
+// // id: the userID on the channel
+// var Player = function(firstName, id) {
+//   this.firstName = firstName;
+//   this.userID = id;
+//   this.Level = 1;
+//   this.hp = 10;
+//   this.maxhp = this.Level * 10;
+//   this.Inventory = [];
+//   this.Weapon = "Fist";
+//   this.Gold = 2;
+//   this.Slain = 0;
+//   this.Killed = 0;
+//   // stats
+//   this.Points = 5;
+//   this.Strength = 1;
+//   this.Intelligence = 1;
+//   this.ArmorClass = 1;
+//   this.Charisma = 1;
+// };
+//
+// Player.prototype.getName = function() {
+//   return this.firstName;
+// };
+//
+// Player.prototype.getID = function() {
+//   return this.userID;
+// };
+//
+// Player.prototype.getStats = function(player)
+// {
+//   var playerString = "```" +
+//   "!======== [" + player.getName() + " Stats] ========! \n" +
+//   "+ Health: " + player.hp + "|" + player.maxhp + "\n" +
+//   "+ for Inventory type inv; \n" +
+//   "+ Weapon: " + player.Weapon + " + \n" +
+//   "+ Level: " + player.Level + " + \n" +
+//   "+ Gold: " + player.Gold + " + \n" +
+//   "+ Slain: " + player.Slain + " + \n" +
+//   "+ Killed: " + player.Killed + " + \n" +
+//   "+ Strength: " + player.Strength + " + \n" +
+//   "+ Intelligence: " + player.Intelligence + " + \n" +
+//   "+ ArmorClass: " + player.ArmorClass + " + \n" +
+//   "+ Charisma: " + player.Charisma + " + \n" +
+//   "+ Points: " + player.Points + " + \n" +
+//   "!==================================! \n" + "```";
+//   return playerString;
+// }
 
 ///////////////////////////////////////////////
 //// commands
@@ -138,6 +138,10 @@ Command.prototype.getDescription = function(){
   return this.Description;
 };
 
+
+////////////////////////////////////////////////////////////
+/// Follow the pattern below to add commands. Make sure to add an event method with it below in this script
+///////////////////////////////////////////////////////////
 //General commands
 // Command = function(name, description, user, userID, method){
 //help command
@@ -156,18 +160,11 @@ ServerCommands.push(c_setchannel);
 var c_getchannel = new Command("getchannel", "tells you which channel ID the bot is subscribed to");
 ServerCommands.push(c_getchannel);
 
-///Player commands
-var c_createplayer = new Command("createplayer", "Creates a player for the typed userID");
-ServerCommands.push(c_createplayer);
-
-var c_getplayerstats = new Command("getstats", "Gets the current stats of the typed userID");
-ServerCommands.push(c_getplayerstats);
-
 ////////////////////////////////////////////////
 /// class level variables
 
 
-var m_commandList = "General: \n help, ping, setchannel, getchannel \n Gameplay: \n createplayer, getstats";
+var m_commandList = "General: \n help, ping, setchannel, getchannel";
 //the letter or symbol for the bot to look for after a command.
 var m_prefix = ";";
 var m_currentChannel = null;
@@ -226,7 +223,10 @@ bot.on('message', function(user, userID, channelID, message, event) {
 
 });
 
+/////////////////////////////////////////////////////////////////
 ///////////////// command methods
+////////////////////////////////////////////////////////////////
+
 
 //help and server commands
 eventEmitter.on('help', function(command) {
@@ -252,66 +252,10 @@ eventEmitter.on('getchannel', function(command) {
   SendBotMessage(command.user, command.userID, command.channelID, m_currentChannel);
 });
 
-eventEmitter.on('getstats', function(command) {
 
-  for (i = 0; i < PlayerList.length; i++)
-  {
-    //we found a match so do not create a new player
-    if(PlayerList[i].userID == command.userID)
-    {
-      var stats = PlayerList[i].getStats(PlayerList[i]);
-      SendBotMessage(command.user, command.userID, command.channelID, stats);
-    }
-
-  }
-
-});
-
-///player commands
-eventEmitter.on('createplayer', function(command) {
-
-  console.log("creating a new player:" + PlayerList.length);
-
-  if(PlayerList.length == 0)
-  {
-    //create a new player
-    var newPlayer = new Player(command.user, command.userID);
-    PlayerList.push(newPlayer);
-    SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
-    SendBotMessage(command.user, command.userID, command.channelID, "Created A New Player: " + newPlayer.getStats(newPlayer));
-  }
-  else
-  {
-    //make sure there isn't a player already for the given user id
-    for (i = 0; i < PlayerList.length; i++)
-    {
-      console.log("checking if player exists");
-      //we found a match so do not create a new player
-      if(PlayerList[i].userID == command.userID)
-      {
-          SendBotMessage(command.user, command.userID, command.channelID, "Already Have a Player. type getstats;");
-      }
-      else if(PlayerList.length == i && PlayerList[i].userID != command.userID)
-      {
-        //create a new player
-        var newPlayer = new Player(command.user, command.userID);
-        PlayerList.push(newPlayer);
-        SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
-      }
-      else {
-        console.log("nothing matched: " + i + "| " + PlayerList.length);
-      }
-    }
-  }
-
-  console.log("creating a new player:" + PlayerList.length);
-
-
-});
-
-
-//////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 /// the bot messaging util
+//////////////////////////////////////////////////////////////////////////
 
 ///reads a given txt/json file and sends it to the channelID
 ///json reading tutorial https://www.codementor.io/nodejs/tutorial/how-to-use-json-files-in-node-js
