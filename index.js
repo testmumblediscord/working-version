@@ -31,7 +31,7 @@ app.listen(app.get('port'), function() {
 ////////////////////////////////////////////////////////////////
 
 var bot = new Discord.Client({
-    token: "MjM4Nzg1ODAwNzY0OTE1NzEy.CurVwQ.3035GY3YxLw3VBKaDcpugL2V7v0",
+    token: "MjYxMTkyMzA4NDA0Mzg3ODQw.C0NoMw.7rxmz9w5VtiauBvz4Pp56qPfXrI",
     autorun: true
 });
 
@@ -39,62 +39,37 @@ bot.on('ready', function() {
     console.log(bot.username + " - (" + bot.id + ")");
 });
 
-///////////////////////////////////////////////////////////////
-////Player
+bot.on('voiceStateUpdate', (oldState, newstate) => {
 
-//a list of the current players
-var PlayerList = [];
+    if (oldState.voiceChannel && newstate.voiceChannel && oldState.voiceChannel.name === newstate.voiceChannel.name) {
+        return;
+    }
 
-//// Player Class
-// firstName: user name on the discord channel
-// id: the userID on the channel
-var Player = function(firstName, id) {
-  this.firstName = firstName;
-  this.userID = id;
-  this.Level = 1;
-  this.hp = 10;
-  this.maxhp = this.Level * 10;
-  this.Inventory = [];
-  this.Weapon = "Fist";
-  this.Gold = 2;
-  this.Slain = 0;
-  this.Killed = 0;
-  // stats
-  this.Points = 5;
-  this.Strength = 1;
-  this.Intelligence = 1;
-  this.ArmorClass = 1;
-  this.Charisma = 1;
+    if (oldState.voiceChannel) {
+        const textChannel = oldState.guild.channels.reduce((acc, channel) => {
+            if (!acc && channel.type === "text" && channel.name === oldState.voiceChannel.name.toLowerCase().replace(' ', '_')) {
+                acc = channel;
+            }
+            return acc;
+        }, null);
 
-};
+        if (textChannel) {
+            textChannel.overwritePermissions(oldState, {"READ_MESSAGES": false});
+        }
+    }
 
-Player.prototype.getName = function() {
-  return this.firstName;
-};
-
-Player.prototype.getID = function() {
-  return this.userID;
-};
-
-Player.prototype.getStats = function(player)
-{
-  var playerString = "```" +
-  "!======== [" + player.getName() + " Stats] ========! \n" +
-  "+ Health: " + player.hp + "|" + player.maxhp + "\n" +
-  "+ for Inventory type inv; \n" +
-  "+ Weapon: " + player.Weapon + " + \n" +
-  "+ Level: " + player.Level + " + \n" +
-  "+ Gold: " + player.Gold + " + \n" +
-  "+ Slain: " + player.Slain + " + \n" +
-  "+ Killed: " + player.Killed + " + \n" +
-  "+ Strength: " + player.Strength + " + \n" +
-  "+ Intelligence: " + player.Intelligence + " + \n" +
-  "+ ArmorClass: " + player.ArmorClass + " + \n" +
-  "+ Charisma: " + player.Charisma + " + \n" +
-  "+ Points: " + player.Points + " + \n" +
-  "!==================================! \n" + "```";
-  return playerString;
-}
+    if (newstate.voiceChannel) {
+        const textChannel = newstate.guild.channels.reduce((acc, channel) => {
+            if (!acc && channel.type === "text" && channel.name === newstate.voiceChannel.name.toLowerCase().replace(' ', '_')) {
+                acc = channel;
+            }
+            return acc;
+        }, null);
+        if (textChannel) {
+            textChannel.overwritePermissions(oldState, {"READ_MESSAGES": true});
+        }
+    }
+});
 
 ///////////////////////////////////////////////
 //// commands
@@ -266,49 +241,6 @@ eventEmitter.on('getstats', function(command) {
   }
 
 });
-
-///player commands
-eventEmitter.on('createplayer', function(command) {
-
-  console.log("creating a new player:" + PlayerList.length);
-
-  if(PlayerList.length == 0)
-  {
-    //create a new player
-    var newPlayer = new Player(command.user, command.userID);
-    PlayerList.push(newPlayer);
-    SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
-    SendBotMessage(command.user, command.userID, command.channelID, "Created A New Player: " + newPlayer.getStats(newPlayer));
-  }
-  else
-  {
-    //make sure there isn't a player already for the given user id
-    for (i = 0; i < PlayerList.length; i++)
-    {
-      console.log("checking if player exists");
-      //we found a match so do not create a new player
-      if(PlayerList[i].userID == command.userID)
-      {
-          SendBotMessage(command.user, command.userID, command.channelID, "Already Have a Player. type getstats;");
-      }
-      else if(PlayerList.length == i && PlayerList[i].userID != command.userID)
-      {
-        //create a new player
-        var newPlayer = new Player(command.user, command.userID);
-        PlayerList.push(newPlayer);
-        SendBotMessage(command.user, command.userID, command.channelID, "Creating a new player: " + command.user);
-      }
-      else {
-        console.log("nothing matched: " + i + "| " + PlayerList.length);
-      }
-    }
-  }
-
-  console.log("creating a new player:" + PlayerList.length);
-
-
-});
-
 
 //////////////////////////////
 /// the bot messaging util
